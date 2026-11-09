@@ -1,0 +1,48 @@
+{
+  "Connections": {
+    "CLT.ADUA.Ldap": {
+      "Server": "dc01.contoso.com",
+      "TlsMode": "Auto",
+      "AuthType": "Negotiate"
+    }
+  },
+
+  "GlobalSettings": {
+    "CLT.ADUA.SearchBase": ["OU=Staff,DC=contoso,DC=com"],
+    "CLT.ADUA.LdapFilter": "(mail=*)",
+    "CLT.ADUA.ExcludedOUs": ["OU=Service Accounts,OU=Staff,DC=contoso,DC=com"],
+    "CLT.ADUA.ExcludedUsers": ["svc-scanner", "CONTOSO\\svc-backup"],
+    "CLT.ADUA.ExcludedGroups": ["Shared Mailbox Accounts"],
+    "CLT.ADUA.RequiredExtensionAttributes": ["msDS-cloudExtensionAttribute1", "cloud2"],
+    "CLT.ADUA.ExtensionAttributeNames": { "cloud1": "Cost centre", "cloud2": "Employee type" },
+
+    "CLT.ADUA.AllowedValues": {
+      "department": ["IT", "Finance", "Human Resources", "Sales"],
+      "title": ["Chief Executive Officer", "IT Manager", "Accountant", "Sales Representative"],
+      "co": ["United States", "Canada"],
+      "msDS-cloudExtensionAttribute2": ["Employee", "Contractor", "Intern"],
+      "locations": [
+        { "name": "Seattle HQ", "streetAddress": "1 Main Street", "l": "Redmond", "st": "WA",
+          "postalCode": "98052", "co": "United States", "company": "Contoso Ltd",
+          "telephoneNumber": "+14255550100" },
+        { "name": "Toronto", "streetAddress": "100 King Street West", "l": "Toronto", "st": "ON",
+          "postalCode": "M5X 1A9", "co": "Canada", "company": "Contoso Canada" }
+      ]
+    },
+    "CLT.ADUA.AllowedValuesFile": "./validation.json"
+  },
+
+  "TestSettings": [
+    { "Id": "MP.CLT.ADUA.1001", "Parameters": { "ExcludedJobTitles": ["CEO", "Chief Executive Officer", "Managing Director"] } },
+    { "Id": "MP.CLT.ADUA.1004", "Parameters": { "ExcludedGroups": ["Contractors"] } },
+    { "Id": "MP.CLT.ADUA.1005", "Enabled": false, "Reason": "Single company" },
+    { "Id": "MP.CLT.ADUA.1006", "Parameters": { "Fields": ["l", "co", "physicalDeliveryOfficeName"] } },
+    { "Id": "MP.CLT.ADUA.1009", "Enabled": false, "Reason": "Fax not used" },
+    { "Id": "MP.CLT.ADUA.1011", "Severity": "High", "Parameters": { "IgnoreLeadingZeros": true } },
+    { "Id": "MP.CLT.ADUA.1012", "Parameters": { "AllowSpaces": true, "MaxRows": 250 } },
+    { "Id": "MP.CLT.ADUA.1014", "Parameters": { "CaseSensitive": false } },
+    { "Id": "MP.CLT.ADUA.1016", "Parameters": { "AllowedValues": ["IT Manager", "Accountant"], "CaseSensitive": false } },
+    { "Id": "MP.CLT.ADUA.1025.msDS-cloudExtensionAttribute1", "Enabled": false, "Reason": "Cost centre codes are validated in HR" },
+    { "Id": "MP.CLT.ADUA.1025.extensionAttribute7", "Parameters": { "AllowedValues": ["HQ", "Remote"], "CaseSensitive": false } }
+  ]
+}

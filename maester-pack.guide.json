@@ -1,0 +1,165 @@
+{
+  "$schema": "https://maester.dev/schemas/maester-pack-guide-1.0.json",
+  "Summary": "Checks that Active Directory users have the attributes HR, Entra Connect sync and the address book depend on, formatted consistently and using your approved values and office locations. Reads AD over LDAP from Windows, macOS or Linux. Read-only.",
+  "Prerequisites": [
+    {
+      "Text": "PowerShell 7.4 or later. No ActiveDirectory (RSAT) module is needed."
+    },
+    {
+      "Text": "An account that can read users and groups in the domain. Any domain user can, unless read access has been restricted."
+    },
+    {
+      "Text": "A domain controller reachable on LDAPS (636) or LDAP (389). On macOS and Linux, the OpenLDAP client library (libldap), and a Kerberos ticket (kinit) unless you use Basic authentication over TLS."
+    }
+  ],
+  "Connect": {
+    "Steps": [
+      {
+        "Text": "On a domain-joined Windows computer: connect as the signed-in user to the computer's domain.",
+        "Command": "Connect-Maester -Service CLT.ADUA.Ldap"
+      },
+      {
+        "Text": "Name a domain controller, or another domain.",
+        "Command": "Connect-Maester -Service CLT.ADUA.Ldap -ServiceSetting @{ Server = 'dc01.contoso.com' }"
+      },
+      {
+        "Text": "From macOS or Linux without Kerberos: a simple bind over LDAPS.",
+        "Command": "Connect-Maester -Service CLT.ADUA.Ldap -ServiceSetting @{ Server = 'dc01.contoso.com'; AuthType = 'Basic'; TlsMode = 'Ldaps'; Credential = (Get-Credential) }"
+      }
+    ],
+    "Notes": [
+      "TlsMode Auto (the default) tries LDAPS, then StartTLS, then a Kerberos-signed and sealed connection on 389. Basic authentication is refused without TLS.",
+      "Connection settings can also go under Connections.\"CLT.ADUA.Ldap\" in maester-config.json, or in MAESTER_CLT_ADUA_LDAP_<NAME> environment variables (Server, Port, TlsMode, AuthType, SearchBase)."
+    ]
+  },
+  "Run": {
+    "Commands": [
+      {
+        "Text": "Only this pack",
+        "Command": "Invoke-Maester -Pack CLT.ADUA -SkipBuiltIn"
+      },
+      {
+        "Text": "This pack and the User Attributes pack for Microsoft Entra ID, in one report",
+        "Command": "Invoke-Maester -Pack CLT.ADUA, CLT.UA -SkipBuiltIn"
+      },
+      {
+        "Text": "Only the approved-value tests",
+        "Command": "Invoke-Maester -Pack CLT.ADUA -SkipBuiltIn -Tag Validation"
+      },
+      {
+        "Text": "Only the extension attribute tests",
+        "Command": "Invoke-Maester -Pack CLT.ADUA -SkipBuiltIn -Tag ExtensionAttributes"
+      },
+      {
+        "Text": "Leave out the fields many organisations don't use (business phone, mobile, fax, office location)",
+        "Command": "Invoke-Maester -Pack CLT.ADUA -SkipBuiltIn -ExcludeTag Optional"
+      },
+      {
+        "Text": "List every failing user for one test instead of the first 100",
+        "Command": "Invoke-MtTest -Id MP.CLT.ADUA.1002 -Parameter @{ MaxRows = 0 }"
+      }
+    ],
+    "Notes": [
+      "Pack-wide settings go under GlobalSettings in maester-config.json, for example \"CLT.ADUA.ExcludedOUs\": [\"OU=Service Accounts,DC=contoso,DC=com\"]. Per-test settings go under TestSettings, for example { \"Id\": \"MP.CLT.ADUA.1004\", \"Parameters\": { \"ExcludedGroups\": [\"Contractors\"] } }."
+    ],
+    "Options": [
+      {
+        "Name": "GlobalSettings: CLT.ADUA.SearchBase",
+        "Default": "the domain root",
+        "Text": "One or more OU DNs to read users from, such as OU=Staff,DC=contoso,DC=com."
+      },
+      {
+        "Name": "GlobalSettings: CLT.ADUA.ExcludedOUs",
+        "Default": "none",
+        "Text": "OU DNs whose users (in sub-OUs too) are left out of every test, such as service account and resource OUs."
+      },
+      {
+        "Name": "GlobalSettings: CLT.ADUA.ExcludedUsers",
+        "Default": "none",
+        "Text": "Users (sAMAccountName, DOMAIN\\name, UPN, DN or objectGUID) to leave out of every test."
+      },
+      {
+        "Name": "GlobalSettings: CLT.ADUA.ExcludedGroups",
+        "Default": "none",
+        "Text": "Groups (sAMAccountName, DN or objectGUID) whose members, including nested members, are left out of every test."
+      },
+      {
+        "Name": "ExcludedUsers, ExcludedGroups (every test)",
+        "Default": "none",
+        "Text": "More users or groups to leave out of one test. They add to the pack-wide exclusions."
+      },
+      {
+        "Name": "GlobalSettings: CLT.ADUA.AllowedValues",
+        "Default": "none (falls back to CLT.UA.AllowedValues)",
+        "Text": "Approved values by LDAP attribute (department, title, l, st, co, ...) or Graph name (jobTitle, city, state, country, ...) and office locations, extensionAttribute1-15 and msDS-cloudExtensionAttribute1-20, for MP.CLT.ADUA.1014-1023 and 1025."
+      },
+      {
+        "Name": "GlobalSettings: CLT.ADUA.AllowedValuesFile",
+        "Default": "none (falls back to CLT.UA.AllowedValuesFile)",
+        "Text": "A JSON file of more approved values, in the same shape or the 2.x validation.json shape. Relative to the folder the run starts in."
+      },
+      {
+        "Name": "GlobalSettings: CLT.ADUA.RequiredExtensionAttributes",
+        "Default": "none (lists the extension attributes in use)",
+        "Text": "Extension attributes every user must have, for MP.CLT.ADUA.1024: extensionAttribute1-15 (Exchange schema; or 1-15) and msDS-cloudExtensionAttribute1-20 (2012 schema; or cloud1-cloud20)."
+      },
+      {
+        "Name": "GlobalSettings: CLT.ADUA.ExtensionAttributeNames",
+        "Default": "none",
+        "Text": "What each extension attribute holds, such as { \"cloud1\": \"Cost centre\" }, shown in titles and results."
+      },
+      {
+        "Name": "MP.CLT.ADUA.1015-1022 AllowedValues",
+        "Default": "none",
+        "Text": "Approved values for one test; replaces the shared approved values for that test."
+      },
+      {
+        "Name": "IncludeDisabled (every test)",
+        "Default": "false (true for MP.CLT.ADUA.1011)",
+        "Text": "Also check disabled accounts."
+      },
+      {
+        "Name": "MaxRows (every test)",
+        "Default": "100",
+        "Text": "Most users or rows listed in a result. 0 lists them all."
+      },
+      {
+        "Name": "MP.CLT.ADUA.1001 ExcludedJobTitles",
+        "Default": "CEO, Chief Executive Officer",
+        "Text": "Job titles at the top of the organisation, which have no manager."
+      },
+      {
+        "Name": "MP.CLT.ADUA.1006 Fields",
+        "Default": "streetAddress, l, st, postalCode, co",
+        "Text": "Address attributes that must be set. c and physicalDeliveryOfficeName can be added."
+      },
+      {
+        "Name": "MP.CLT.ADUA.1011 IgnoreLeadingZeros",
+        "Default": "false",
+        "Text": "Treat employee IDs that differ only in leading zeros as the same ID."
+      },
+      {
+        "Name": "MP.CLT.ADUA.1012 Attributes, AllowSpaces, PhonePattern",
+        "Default": "telephoneNumber and mobile; false; E.164",
+        "Text": "Which phone attributes to check, whether spaces are allowed, and the regular expression a number must match."
+      },
+      {
+        "Name": "MP.CLT.ADUA.1014 Attribute, AllowedCountries",
+        "Default": "co; none (lists the values found)",
+        "Text": "Check co (country name) or c (two-letter code), and the exact spellings your organisation uses."
+      },
+      {
+        "Name": "MP.CLT.ADUA.1023 Fields",
+        "Default": "streetAddress, l, st, postalCode, co, company",
+        "Text": "Attributes that must match one approved location. Add telephoneNumber or physicalDeliveryOfficeName to compare them too."
+      }
+    ]
+  },
+  "AppOnly": {
+    "Supported": false,
+    "Text": "Not applicable: the pack reads Active Directory over LDAP as a domain account, not through Microsoft Graph. In a pipeline, run it on an agent that can reach a domain controller, with a Kerberos ticket or a credential for a read-only account."
+  },
+  "Support": {
+    "Pack": "https://github.com/DevClate/maester-pack-adua/issues"
+  }
+}

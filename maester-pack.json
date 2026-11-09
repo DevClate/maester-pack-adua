@@ -1,0 +1,46 @@
+{
+  "$schema": "https://maester.dev/schemas/maester-pack-1.0.json",
+  "Id": "devclate.ad-user-attributes",
+  "Guid": "2e14bbe8-1018-409b-8729-95d7def77f77",
+  "Name": "AD User Attributes",
+  "Description": "Checks that Active Directory users have the attributes HR processes, Entra Connect sync and address books depend on, that those values are formatted consistently, and that they use your approved values and office locations.",
+  "Version": "0.3.1",
+  "Publisher": "devclate",
+  "License": "MIT",
+  "Homepage": "https://github.com/DevClate/maester-pack-adua",
+  "Support": "https://github.com/DevClate/maester-pack-adua/issues",
+  "SecurityContact": "https://github.com/DevClate/maester-pack-adua/security/advisories/new",
+  "RequiresMaester": ">=3.0",
+  "Code": "CLT.ADUA",
+  "Suites": [
+    "tests"
+  ],
+  "Helpers": [
+    "helpers"
+  ],
+  "Connectors": [
+    {
+      "Service": "CLT.ADUA.Ldap",
+      "DisplayName": "Active Directory (LDAP, read-only)",
+      "File": "connector/Connect-CltAduaLdap.ps1",
+      "Connect": "Connect-CltAduaLdap",
+      "Test": "Test-CltAduaLdap",
+      "Disconnect": "Disconnect-CltAduaLdap",
+      "OptIn": true
+    }
+  ],
+  "Uses": {
+    "Services": [
+      "CLT.ADUA.Ldap"
+    ],
+    "GraphScopes": [],
+    "TenantWrites": [],
+    "Network": [],
+    "Modules": []
+  },
+  "Categories": [
+    "Identity",
+    "Data quality"
+  ],
+  "Guide": "maester-pack.guide.json"
+}
