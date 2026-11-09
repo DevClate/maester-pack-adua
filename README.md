@@ -1,3 +1,5 @@
+![AD User Attributes, a Maester Pack by DevClate](assets/banner.png)
+
 # AD User Attributes for Maester
 
 A [Maester Pack](https://maester.dev/docs/packs/) that checks that **Active Directory** users have the attributes your HR processes, Microsoft Entra Connect sync and the address book depend on, that those values are formatted consistently, and that they use your approved values and office locations.

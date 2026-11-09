@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.3.2
+
+- Added a banner (`assets/banner.png`, 1200 × 630) for the pack's page on packs.maester.cloud and the README, matching the User Attributes pack's.
+
 ## 0.3.1
 
 - Fixed: MP.CLT.ADUA.1011 joined the accounts sharing an employee ID with `<br>`, which the Maester report shows as text, because it does not render raw HTML in results. It now lists one row per account (Employee ID, User, Account, OU), with accounts that share an ID next to each other, and adds a **Stored as** column when `IgnoreLeadingZeros` is on. `MaxRows` now counts accounts.
