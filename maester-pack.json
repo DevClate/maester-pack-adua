@@ -4,7 +4,7 @@
   "Guid": "2e14bbe8-1018-409b-8729-95d7def77f77",
   "Name": "AD User Attributes",
   "Description": "Checks that Active Directory users have the attributes HR processes, Entra Connect sync and address books depend on, that those values are formatted consistently, and that they use your approved values and office locations.",
-  "Version": "0.3.2",
+  "Version": "0.3.3",
   "Publisher": "devclate",
   "License": "MIT",
   "Homepage": "https://github.com/DevClate/maester-pack-adua",
